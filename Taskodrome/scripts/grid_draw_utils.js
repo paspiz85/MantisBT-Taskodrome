@@ -1,10 +1,22 @@
 var H_OFFSET = 20;
 var V_OFFSET = 20;
 
+var CARD_H_OFFSET = 15;
+var CARD_V_OFFSET = 10;
+
+var FONT_COLOR = "#000000"
+var FONT_FAMILY = "Arial"
+var FONT_SIZE = "12px"
+var FONT = FONT_SIZE + " " + FONT_FAMILY;
+
 var MIN_COL_WIDTH = 140;
+
+var POPUP_PAUSE = 600;
 
 var update = false;
 var stageToUpdate;
+
+var popupPause = 0;
 
 function fullRedraw() {
   draw();
@@ -42,11 +54,8 @@ function createTable(issues, cardDescArray, columnHeaders, panel, panelName, gri
     height : colHeight
   }
 
-  var cardHorOffset = 15;
-  var cardVerOffset = 10;
-
-  var cardWidth = colWidth - 2 * cardHorOffset;
-  var cardHeight = colHeight / 5 - 2 * cardVerOffset;
+  var cardWidth = colWidth - 2 * CARD_H_OFFSET;
+  var cardHeight = colHeight / 5 - 2 * CARD_V_OFFSET;
 
   if(cardWidth <= 0 || cardHeight <= 0) {
     return null;
@@ -54,7 +63,7 @@ function createTable(issues, cardDescArray, columnHeaders, panel, panelName, gri
 
   var isStatusGrid = (gridName == "st-grid") ? true : false;
 
-  var cards = createCards(panel, issues, cardDescArray, selectedCardMousePos, selectedCard, selectedCardSourceIndex, colNumber, cardWidth, cardHeight, cardHorOffset, cardVerOffset, ColParams, onPressUp, isStatusGrid);
+  var cards = createCards(panel, issues, cardDescArray, selectedCardMousePos, selectedCard, selectedCardSourceIndex, colNumber, cardWidth, cardHeight, ColParams, onPressUp, isStatusGrid);
 
   if(cards != null)
   {
@@ -67,7 +76,7 @@ function createTable(issues, cardDescArray, columnHeaders, panel, panelName, gri
       columns = createColumns(columnHeaders, colNumber, colWidth, colHeight);
 
       ColParams.height += add;
-      cards = createCards(panel, issues, cardDescArray, selectedCardMousePos, selectedCard, selectedCardSourceIndex, colNumber, cardWidth, cardHeight, cardHorOffset, cardVerOffset, ColParams, onPressUp, isStatusGrid);
+      cards = createCards(panel, issues, cardDescArray, selectedCardMousePos, selectedCard, selectedCardSourceIndex, colNumber, cardWidth, cardHeight, ColParams, onPressUp, isStatusGrid);
 
       height += add;
     }
@@ -94,7 +103,7 @@ function createTable(issues, cardDescArray, columnHeaders, panel, panelName, gri
   }
 };
 
-function createCards(panel, issues, cardDescArray, selectedCardMousePos, selectedCard, selectedCardSourceIndex, colNumber, cardWidth, cardHeight, cardHorOffset, cardVerOffset, colParams, onPressUp, isStatusGrid) {
+function createCards(panel, issues, cardDescArray, selectedCardMousePos, selectedCard, selectedCardSourceIndex, colNumber, cardWidth, cardHeight, colParams, onPressUp, isStatusGrid) {
   var textHeight = 10;
   cardDescArray.length = 0;
 
@@ -102,10 +111,10 @@ function createCards(panel, issues, cardDescArray, selectedCardMousePos, selecte
 
   for(var i = 0; i < colNumber; ++i) {
     var issuesNumber = issues[i].length;
-    var x = cardHorOffset + (H_OFFSET + i * colParams.width);
+    var x = CARD_H_OFFSET + (H_OFFSET + i * colParams.width);
 
     var cardDescs = [];
-    var y = V_OFFSET + textHeight + cardVerOffset;
+    var y = V_OFFSET + textHeight + CARD_V_OFFSET;
 
     for(var k = 0; k < issuesNumber; ++k) {
       position = {
@@ -130,7 +139,7 @@ function createCards(panel, issues, cardDescArray, selectedCardMousePos, selecte
         colParams.height += y + position.height - colParams.height;
       }
 
-      y += position.height + 2 * cardVerOffset;
+      y += position.height + 2 * CARD_V_OFFSET;
 
       cardDescs.push(CardDesc);
     }
@@ -196,6 +205,11 @@ function createCard(panel, position, issues, issue, selectedCardMousePos, cardDe
         }
       }
     }
+
+    if (popupCard != null) {
+      panel.removeChild(popupCard);
+      popupCard = null;
+    }
   };
   card.on("mousedown", cardOnMousedown);
 
@@ -209,6 +223,20 @@ function createCard(panel, position, issues, issue, selectedCardMousePos, cardDe
   card.on("pressmove", cardOnPressmove);
 
   card.on("pressup", onPressUp);
+
+  function cardOnRollover(evt) {
+    popupCard = createPopupCard(evt.stageX, evt.stageY, issue.description, issue.severity, issue.priority, issue.reproducibility);
+    popupPause = POPUP_PAUSE;
+    stageToUpdate = panel;
+  };
+  card.on("rollover", cardOnRollover);
+
+  function cardOnRollout(evt) {
+    panel.removeChild(popupCard);
+    popupCard = null;
+    update = true;
+  };
+  card.on("rollout", cardOnRollout);
 
   card.x = position.x;
   card.y = position.y;
@@ -227,6 +255,89 @@ function createCard(panel, position, issues, issue, selectedCardMousePos, cardDe
   return card;
 };
 
+function createPopupCard(x, y, descriptionText, severityText, priorityText, reproducibilityText) {
+  var card = new createjs.Container();
+  var height = 0;
+  var width = 0;
+  var offset = 8;
+
+  var description = createDescription(descriptionText, 12 + offset);
+  description.x = offset;
+  description.y = offset;
+  width = description.getBounds().width + 2 * offset;
+  height += description.getBounds().height + offset;
+
+  var severity = createHeaderTextPair("Severity: ", severityText, 12 + offset);
+  severity.x = offset;
+  severity.y = Math.round(height);
+  width = Math.max(severity.getBounds().width + 2 * offset, width);
+  height += severity.getBounds().height;
+
+  var priority = createHeaderTextPair("Priority: ", priorityText, 12 + offset);
+  priority.x = offset;
+  priority.y = Math.round(height);
+  width = Math.max(priority.getBounds().width + 2 * offset, width);
+  height += priority.getBounds().height;
+
+  var reproducibility = createHeaderTextPair("Reproducibility: ", reproducibilityText, 12 + offset);
+  reproducibility.x = offset;
+  reproducibility.y = Math.round(height);
+  width = Math.max(reproducibility.getBounds().width + 2 * offset, width);
+  height += reproducibility.getBounds().height;
+
+  var back = createCardBack(width, height);
+
+  card.addChild(back);
+  card.addChild(description);
+  card.addChild(severity);
+  card.addChild(priority);
+  card.addChild(reproducibility);
+
+  card.x = x;
+  card.y = y;
+
+  card.tickEnabled = false;
+  card.mouseEnabled = false;
+
+  return card;
+};
+
+function createDescription(text, lineHeigth) {
+  var desc = new createjs.Container();
+
+  var newlineIndex = text.search(/[\r\n]/);
+  if (newlineIndex == -1) {
+    newlineIndex = text.length;
+  }
+
+  var firstLine = createHeaderTextPair("Description: ", text.substring(0, newlineIndex), lineHeigth);
+
+  var restLines = new createjs.Text(text.substring(newlineIndex + 1), FONT, FONT_COLOR);
+  restLines.lineHeight = lineHeigth;
+  restLines.y = firstLine.getBounds().height;
+
+  desc.addChild(firstLine);
+  desc.addChild(restLines);
+
+  return desc;
+};
+
+function createHeaderTextPair(header, text, lineHeigth) {
+  var res = new createjs.Container();
+
+  var headerC = new createjs.Text(header, "bold " + FONT, FONT_COLOR);
+  headerC.lineHeight = lineHeigth;
+
+  var textC = new createjs.Text(text, FONT, FONT_COLOR);
+  headerC.lineHeight = lineHeigth;
+  textC.x = headerC.getBounds().width;
+
+  res.addChild(headerC);
+  res.addChild(textC);
+
+  return res;
+};
+
 function createColumns(columnNames, number, width, height) {
   var columns = new createjs.Container();
 
@@ -239,7 +350,7 @@ function createColumns(columnNames, number, width, height) {
     line.graphics.lineTo(startX, height + V_OFFSET);
     columns.addChild(line);
 
-    var text = new createjs.Text(columnNames[i], "12px Arial", "#000000");
+    var text = new createjs.Text(columnNames[i], FONT, FONT_COLOR);
     text.x = startX + width / 2;
     text.y = V_OFFSET;
     text.textAlign = "center";
@@ -282,7 +393,7 @@ function createCardBottomMark(markColor, cardWidth, cardHeight, markWidth) {
 function createCardNumber(issueNumber, width, markWidth) {
   var cont = new createjs.Container();
   var numberColor = "#0000FF";
-  var number = new createjs.Text(issueNumber, "12px Arial", numberColor);
+  var number = new createjs.Text(issueNumber, FONT, numberColor);
   number.x = width - number.getBounds().width - 5;
   number.y += markWidth + 3;
 
@@ -324,7 +435,7 @@ function handleInteraction(event, data) {
 };
 
 function createCardAssignee(issueHandlerId, width, markWidth) {
-  var assignee = new createjs.Text(nameToHandlerId[issueHandlerId], "12px Arial", "#000000");
+  var assignee = new createjs.Text(nameToHandlerId[issueHandlerId], FONT, FONT_COLOR);
   assignee.x = 5;
   assignee.y += markWidth + 3;
   return assignee;
@@ -332,7 +443,7 @@ function createCardAssignee(issueHandlerId, width, markWidth) {
 
 function createCardSummary(issueText, width, markWidth, number) {
   var sz = 12;
-  var summary = new createjs.Text(issueText, sz + "px Arial", "#000000");
+  var summary = new createjs.Text(issueText, sz + "px " + FONT_FAMILY, FONT_COLOR);
   summary.x = width / 2;
   summary.textAlign = "center";
   summary.lineWidth = width - 4;
@@ -340,7 +451,7 @@ function createCardSummary(issueText, width, markWidth, number) {
 
   while (--sz != 7 && summary.getBounds().width > summary.lineWidth)
   {
-    summary.font = sz + "px Arial";
+    summary.font = sz + "px " + FONT_FAMILY;
   }
 
   return summary;
@@ -363,5 +474,15 @@ function tick(event) {
   if(update) {
     update = false;
     stageToUpdate.update();
+  }
+
+  if (popupCard != null) {
+    if (popupPause == 0) {
+      stageToUpdate.addChild(popupCard);
+      update = true;
+      popupPause = -1;
+    } else if (popupPause > 0) {
+      popupPause -= Math.min(event.delta, popupPause);
+    }
   }
 };
