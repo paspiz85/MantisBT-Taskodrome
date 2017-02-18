@@ -1,6 +1,3 @@
-var H_PADDING_CORRECTION = 6;
-var V_PADDING_CORRECTION = 20;
-
 var myPanel;
 
 var issues = [];
@@ -30,8 +27,8 @@ function init() {
 
   var parentDiv = document.getElementById("dev-grid");
 
-  parentWidth.value = parseInt(window.getComputedStyle(parentDiv).getPropertyValue("width")) - H_PADDING_CORRECTION;
-  parentHeight = parseInt(window.getComputedStyle(parentDiv).getPropertyValue("height")) - V_PADDING_CORRECTION;
+  parentWidth.value = parseInt(window.getComputedStyle(parentDiv).getPropertyValue("width"));
+  parentHeight = parseInt(window.getComputedStyle(parentDiv).getPropertyValue("height"));
 
   sortIssues();
   draw();
@@ -48,7 +45,7 @@ function draw() {
   panelCanvas.height = parentHeight;
 
   createTable(issues, cardDescArray, developersNames, myPanel, "panel",
-              "dev-grid", selectedCardMousePos, selectedCard,
+              false, selectedCardMousePos, selectedCard,
              selectedCardSourceIndex, columnWidth, parentWidth,
              parentWidth.value, parentHeight, onPressUp);
   myPanel.update();
@@ -184,6 +181,9 @@ function trySendNextBug(index) {
 function getUsersRaw() {
   var ret = [];
   var array = document.getElementsByClassName("user_data");
+  if (!checkExistence("getUsersRaw", array)) {
+    return ret;
+  }
 
   for(var i = 0; i != array.length; ++i) {
     var el = array[i];
