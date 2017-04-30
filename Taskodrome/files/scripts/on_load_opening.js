@@ -1,6 +1,8 @@
-var issues_raw;
-var cooldown_period;
-var allowed_statuses_map;
+var m_issues_raw;
+var m_cooldown_period;
+var m_allowed_statuses_map;
+var m_status_color_map;
+var m_versions;
 
 function onLoadOpening() {
   var markIndex = window.location.href.lastIndexOf("#");
@@ -18,9 +20,9 @@ function isIndexInArray(array, index) {
 };
 
 function isStatusAllowed(id, src_status, dst_status) {
-  return isIndexInArray(allowed_statuses_map, id)
-  && isIndexInArray(allowed_statuses_map[id], src_status)
-  && allowed_statuses_map[id][src_status].indexOf(dst_status) != -1;
+  return isIndexInArray(m_allowed_statuses_map, id)
+  && isIndexInArray(m_allowed_statuses_map[id], src_status)
+  && m_allowed_statuses_map[id][src_status].indexOf(dst_status) != -1;
 };
 
 function getCooldownPeriod() {
@@ -34,9 +36,11 @@ function getCooldownPeriod() {
 function pageOnLoad() {
   onLoadOpening();
 
-  issues_raw = getIssuesRaw();
-  cooldown_period = getCooldownPeriod();
-  allowed_statuses_map = getStatusesAllowanceMap();
+  m_issues_raw = getIssuesRaw();
+  m_cooldown_period = getCooldownPeriod();
+  m_allowed_statuses_map = getStatusesAllowanceMap();
+  m_status_color_map = getStatusColors();
+  m_versions = getVersions();
 
   init();
   statusInit();
