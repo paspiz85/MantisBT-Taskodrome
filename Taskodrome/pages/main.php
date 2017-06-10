@@ -6,6 +6,7 @@
   print "<script type=\"text/javascript\" src=\"./plugins/Taskodrome/scripts/grid_common_utils.js\"></script>\n";
   print "<script type=\"text/javascript\" src=\"./plugins/Taskodrome/scripts/grid_draw_utils.js\"></script>\n";
   print "<script type=\"text/javascript\" src=\"./plugins/Taskodrome/scripts/issue_updater.js\"></script>\n";
+  print "<script type=\"text/javascript\" src=\"./plugins/Taskodrome/scripts/scroller.js\"></script>\n";
   print "<script type=\"text/javascript\" src=\"./plugins/Taskodrome/scripts/devs_grid.js\"></script>\n";
   print "<script type=\"text/javascript\" src=\"./plugins/Taskodrome/scripts/status_grid.js\"></script>\n";
   print "<script type=\"text/javascript\" src=\"./plugins/Taskodrome/scripts/on_load_opening.js\"></script>\n";
@@ -60,14 +61,13 @@
       $issues_array_html .= 'summary="'.$summary.'" ';
       $issues_array_html .= 'status="'.$t_row->status.'" ';
       $issues_array_html .= 'handler_id="'.$handler_id.'" ';
-      $issues_array_html .= 'topColor="#0000FF" ';
-      $issues_array_html .= 'bottomColor="#FF0000" ';
       $issues_array_html .= 'updateTime="'.$t_row->last_updated.'" ';
       $description = strip_tags($t_row->description);
       $description = str_replace('"', '&#34;', $description);
       $issues_array_html .= 'description="'.$description.'" ';
       $issues_array_html .= 'severity="'.get_enum_element('severity', $t_row->severity).'" ';
       $issues_array_html .= 'priority="'.get_enum_element('priority', $t_row->priority).'" ';
+      $issues_array_html .= 'priorityCode="'.$t_row->priority.'" ';
       $issues_array_html .= 'reproducibility="'.get_enum_element('reproducibility', $t_row->reproducibility).'" ';
       $issues_array_html .= 'version="'.$t_row->version.'" ';
       $issues_array_html .= '></p>';
@@ -137,43 +137,40 @@
     print '<p class="status_board_order" value="'.$status_order.'"></p>';
     print '<p id="cooldown_period_days" value="'. plugin_config_get("cooldown_period_days") .'"></p>';
     print '<p id="cooldown_period_hours" value="'. plugin_config_get("cooldown_period_hours") .'"></p>';
+    print '<p id="lang_description" value="'. lang_get("description") .'"></p>';
+    print '<p id="lang_severity" value="'. lang_get("severity") .'"></p>';
+    print '<p id="lang_priority" value="'. lang_get("priority") .'"></p>';
+    print '<p id="lang_reproducibility" value="'. lang_get("reproducibility") .'"></p>';
     print '</div>';
 
     print '<section class="tabs">
-    <br>
 
     <input type="radio" id="radio_dg" name="group" >
     <input type="radio" id="radio_sg" name="group" >
 
-    [ <label id="label_dg" class="radio_label" for="radio_dg" >' . plugin_lang_get("assignment_board") . '</label> ]
-    [ <label id="label_sg" class="radio_label" for="radio_sg" >' . plugin_lang_get("status_board") . '</label> ]
+    <label id="label_dg" class="radio_label" for="radio_dg" >' . plugin_lang_get("assignment_board") . '</label>
+    <label id="label_sg" class="radio_label" for="radio_sg" >' . plugin_lang_get("status_board") . '</label>
 
-    <div class="tabs_cont">
-    <div id="tab_c1">
+    <div id="parent_div" class="tabs_cont">
+    <div id="tab_c1" class="grid">
     ';
 
-    print '<div id="dev-grid" class="grid">
-    <canvas id="panel">
+    print '<canvas id="panel">
     </canvas>
     </div>
     ';
 
-    print '</div>';
-
-    print '<div id="tab_c2">
-    <div id="st-grid" class="grid">
+    print '<div id="tab_c2" class="grid">
     <canvas id="panel_st">
     </canvas>
     </div>
     ';
 
-    print '</div>';
-
-    html_page_bottom();
-
     print '</div>
     </section>
     ';
+    
+    html_page_bottom();
   }
 
   function get_user_array()

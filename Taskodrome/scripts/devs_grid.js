@@ -19,15 +19,19 @@ var m_nameToHandlerId = [];
 var m_popupCard = null;
 
 var m_tableScheme = { columnBorders : [],
-                      versionBorders : [] };
+                      versionBorders : [],
+                      headerHeight : 0 };
+
+var m_redrawn = false;
 
 function init() {
   m_mainPanel = new createjs.Stage("panel");
-    m_mainPanel.enableMouseOver(4);
+  m_mainPanel.enableMouseOver(4);
 
-  var parentDiv = document.getElementById("dev-grid");
-
+  var parentDiv = document.getElementById("parent_div");
   m_parentSize.width = parseInt(window.getComputedStyle(parentDiv).getPropertyValue("width"));
+
+  parentDiv = document.getElementById("tab_c1");
   m_parentSize.height = parseInt(window.getComputedStyle(parentDiv).getPropertyValue("height"));
 
   sortIssues();
@@ -44,9 +48,19 @@ function draw() {
   panelCanvas.width = m_parentSize.width;
   panelCanvas.height = m_parentSize.height;
 
-  createTable(m_issues, m_cardDescArray, m_developersNames, m_mainPanel, "panel",
+  var tab_c1 = document.getElementById("tab_c1");
+
+  createTable(m_issues, m_cardDescArray, m_developersNames, m_mainPanel, panelCanvas, tab_c1,
               false, m_selectedCard, m_parentSize, onPressUp, m_columnWidth, m_tableScheme);
-  m_mainPanel.update();
+  var tab_c1_width = parseInt(window.getComputedStyle(tab_c1).getPropertyValue("width"));
+  if (!m_redrawn && (panelCanvas.width > tab_c1_width)) {
+    m_redrawn = true;
+    m_parentSize.width = tab_c1_width;
+    draw();
+  } else {
+    m_redrawn = false;
+    m_mainPanel.update();
+  }
 };
 
 function onPressUp(evt) {
@@ -58,7 +72,7 @@ function onPressUp(evt) {
     newColumnIndex = m_selectedCard.sourceIndex.i;
   }
 
-  if(m_selectedCard.sourceIndex.i != newColumnIndex) {
+  if(newVersionIndex != -1 && m_selectedCard.sourceIndex.i != newColumnIndex) {
     m_issues[m_selectedCard.sourceIndex.i].splice(m_selectedCard.sourceIndex.k, 1);
     m_issues[newColumnIndex].splice(m_issues[newColumnIndex].length, 0, m_selectedCard.value);
 
@@ -77,7 +91,7 @@ function onPressUp(evt) {
     update_issue(bug_id, handler_id, version, m_selectedCard.value.status);
 
     setHrefMark(window, "dg");
-  } else if(m_selectedCard.value.version != m_versions[newVersionIndex]) {
+  } else if(newVersionIndex != -1 && m_selectedCard.value.version != m_versions[newVersionIndex]) {
     m_selectedCard.value.updateTime = Math.round((new Date().getTime()) / 1000);
     m_selectedCard.value.version = m_versions[newVersionIndex];
 

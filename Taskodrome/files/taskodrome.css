@@ -1,30 +1,32 @@
-div.grid { 
-  position: relative; 
-  padding: 0px; 
-  left: -6px;
+.grid {
+  background-color: #EEEEEE;
+  border: 1px solid #428AC8;
   height: auto;
   min-height: 500px;
-  overflow: auto;
+  overflow-x: auto;
+  padding: 0;
 }
 
 .tabs {
+  padding-top: 1em;
   position: relative;
-  margin: 0 auto;
   width: 100%;
 }
 
 .tabs_cont {
   background: #fff;
-  position: relative;
   height: auto;
-  min-height: 230px;
+  min-height: 500px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 1em;
+  padding: 0;
 }
 
-.tabs_cont > div {
+.tabs_cont .grid {
   position: static;
   left: 0;
   opacity: 1;
-  width: 100%;
   -moz-transition: opacity .5s ease-in-out;
   -webkit-transition: opacity .5s ease-in-out;
   transition: opacity .5s ease-in-out;
@@ -54,14 +56,26 @@ div.grid {
 
 #radio_dg:checked ~ #label_dg,
 #radio_sg:checked ~ #label_sg {
-  color: purple;
+  background: #428AC8;
+  color: white;
 }
 
 .radio_label {
-  text-decoration: underline;
-  color: blue;
+  color: #428AC8;
+  font-size: 10pt;
+  font-weight: bolder;
+  background: white;
+  border: solid #428AC8;
+  border-radius: 0.3em;
+  border-width: 1px;
+  padding-left: 0.6em;
+  padding-right: 0.6em;
+  padding-bottom: 0.25em;
+  padding-top: 0.25em;
+  margin-right: 0.12em;
+  margin-bottom: 1em;
 }
 
 .radio_label:hover {
-  color: red;
+  text-decoration: underline;
 }
