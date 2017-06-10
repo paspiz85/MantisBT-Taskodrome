@@ -18,7 +18,10 @@ var m_statusByColumns = [];
 var m_columnByStatus = [];
 
 var m_tableScheme_st = { columnBorders : [],
-                         versionBorders : [] };
+                         versionBorders : [],
+                         headerHeight : 0 };
+
+var m_redrawn_st = false;
 
 function statusInit() {
   m_mainPanel_st = new createjs.Stage("panel_st");
@@ -26,9 +29,10 @@ function statusInit() {
 
   m_statusList = getStatusList_st();
 
-  var parentDiv = document.getElementById("st-grid");
-
+  var parentDiv = document.getElementById("parent_div");
   m_parentSize_st.width = parseInt(window.getComputedStyle(parentDiv).getPropertyValue("width"));
+
+  parentDiv = document.getElementById("tab_c2");
   m_parentSize_st.height = parseInt(window.getComputedStyle(parentDiv).getPropertyValue("height"));
 
   createColumnStatusMap();
@@ -47,9 +51,19 @@ function draw_st() {
   panelCanvas.width = m_parentSize_st.width;
   panelCanvas.height = m_parentSize_st.height;
 
-  createTable(m_issues_st, m_cardDescArray_st, m_statusList, m_mainPanel_st, "panel_st",
+  var tab_c2 = document.getElementById("tab_c2");
+
+  createTable(m_issues_st, m_cardDescArray_st, m_statusList, m_mainPanel_st, panelCanvas, tab_c2,
               true, m_selectedCard_st, m_parentSize_st, onPressUp_st, m_columnWidth_st, m_tableScheme_st);
-  m_mainPanel_st.update();
+  var tab_c2_width = parseInt(window.getComputedStyle(tab_c2).getPropertyValue("width"));
+  if (!m_redrawn_st && (panelCanvas.width > tab_c2_width)) {
+    m_redrawn_st = true;
+    m_parentSize_st.width = tab_c2_width;
+    draw_st();
+  } else {
+    m_redrawn_st = false;
+    m_mainPanel_st.update();
+  }
 };
 
 function onPressUp_st(evt) {
@@ -65,7 +79,7 @@ function onPressUp_st(evt) {
     newColumnIndex = m_selectedCard_st.sourceIndex.i;
   }
 
-  if(m_selectedCard_st.sourceIndex.i != newColumnIndex) {
+  if(newVersionIndex != -1 && m_selectedCard_st.sourceIndex.i != newColumnIndex) {
     m_issues_st[m_selectedCard_st.sourceIndex.i].splice(m_selectedCard_st.sourceIndex.k, 1);
     m_issues_st[newColumnIndex].splice(m_issues_st[newColumnIndex].length, 0, m_selectedCard_st.value);
 
@@ -80,7 +94,7 @@ function onPressUp_st(evt) {
     update_issue(bug_id, handler_id, version, status);
 
     setHrefMark(window, "sg");
-  } else if(m_selectedCard_st.value.version != m_versions[newVersionIndex]) {
+  } else if(newVersionIndex != -1 && m_selectedCard_st.value.version != m_versions[newVersionIndex]) {
     m_selectedCard_st.value.updateTime = Math.round((new Date().getTime()) / 1000);
     m_selectedCard_st.value.version = m_versions[newVersionIndex];
 

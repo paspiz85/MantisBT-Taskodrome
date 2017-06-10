@@ -11,12 +11,11 @@ function getIssuesRaw() {
       summary : el.getAttribute("summary"),
       status : el.getAttribute("status"),
       handler_id : el.getAttribute("handler_id"),
-      topColor: el.getAttribute("topColor"),
-      bottomColor: el.getAttribute("bottomColor"),
       updateTime: el.getAttribute("updateTime"),
       description: el.getAttribute("description"),
       severity: el.getAttribute("severity"),
       priority: el.getAttribute("priority"),
+      priorityCode: el.getAttribute("priorityCode"),
       reproducibility: el.getAttribute("reproducibility"),
       version: el.getAttribute("version")
     };
@@ -174,6 +173,19 @@ function getVersions() {
   }
   return ret;
 };
+
+function getLangReportDetails() {
+  var ret = [];
+  var descr = document.getElementById("lang_description").getAttribute("value");
+  ret["description"] = descr ? descr : "Description";
+  var sev = document.getElementById("lang_severity").getAttribute("value");
+  ret["severity"] = sev ? sev : "Severity";
+  var pri = document.getElementById("lang_priority").getAttribute("value");
+  ret["priority"] = pri ? pri : "Priority";
+  var repr = document.getElementById("lang_reproducibility").getAttribute("value");
+  ret["reproducibility"] = repr ? repr : "Reproducibility";
+  return ret;
+}
 
 function checkExistence(functionName, obj) {
   var exists = (obj != null);
