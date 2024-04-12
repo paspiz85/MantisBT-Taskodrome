@@ -19,11 +19,11 @@ var StatusPage = (function() {
       return m_columnHandler.getColumnIndex(DataSource.Inst().StatusName(card.getStatus()));
     };
 
-    var versions = DataSource.Inst().Versions();
-    function versionSorter(a, b) {
+    var versions = DataSource.Inst().Versions().sort(function (a, b) {
       if(a.timestamp > b.timestamp) return 1; else return -1;
-    };
-    versions.sort(versionSorter);
+    }).map(function (e) {
+      return e.version;
+    });
 
     m_cardTransferNotifier = new CardTransferNotifier();
     m_cardTransferHandler = new CardTransferHandler(m_cardTransferNotifier);
@@ -42,10 +42,10 @@ var StatusPage = (function() {
 
   function fillGrid(grid, versions, columnHandler, page) {
     function addVersion(version) {
-      grid.addBlock(new Block(version.version, columnHandler, page));
+      grid.addBlock(new Block(version, columnHandler, page));
 
       function addIssue(issue) {
-        if (issue.version == version.version) {
+        if (issue.version == version) {
           var card = new Card(issue.id, DataSource.Inst().UserName(issue.handler_id), issue.version, issue.summary, issue.description, issue.severity, issue.priority, issue.priorityCode, issue.reproducibility, issue.updateTime, issue.status, 
             true,
             m_cardTransferHandler, columnHandler, page);
@@ -95,7 +95,7 @@ var StatusPage = (function() {
 
       var oldVersion = card.getVersion();
       if (src.m_block != dst.m_block) {
-        card.setVersion(m_versions[dst.m_block].version);
+        card.setVersion(m_versions[dst.m_block]);
       }
 
       if (src.m_column != dst.m_column) {
