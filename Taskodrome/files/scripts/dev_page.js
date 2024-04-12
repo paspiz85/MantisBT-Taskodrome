@@ -27,7 +27,7 @@ var DevPage = (function() {
 
     var versions = DataSource.Inst().Versions();
     function versionSorter(a, b) {
-      if(a > b) return 1; else return -1;
+      if(a.timestamp > b.timestamp) return 1; else return -1;
     };
     versions.sort(versionSorter);
 
@@ -48,10 +48,10 @@ var DevPage = (function() {
 
   function fillGrid(grid, versions, columnHandler, page) {
     function addVersion(version) {
-      grid.addBlock(new Block(version, columnHandler, page));
+      grid.addBlock(new Block(version.version, columnHandler, page));
 
       function addIssue(issue) {
-        if (issue.version == version) {
+        if (issue.version == version.version) {
           grid.addCard(new Card(issue.id, DataSource.Inst().UserName(issue.handler_id), issue.version, issue.summary, issue.description, issue.severity, issue.priority, issue.priorityCode, issue.reproducibility, issue.updateTime, issue.status,
             false,
             m_cardTransferHandler, columnHandler, page));

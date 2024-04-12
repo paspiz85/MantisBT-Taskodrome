@@ -185,7 +185,7 @@
     $t_versions_cnt = count( $t_versions );
     for( $k=0; $k < $t_versions_cnt; $k++ ) {
       $ver_id = $t_versions[$k]['id'];
-      print '<p class="version" value="'.version_get_field($ver_id, "version").'"></p>';
+      print '<p class="version" value="'.version_get_field($ver_id, "version").'" timestamp="'.version_get_field($ver_id, "date_order").'"></p>';
     }
 
     print '<p class="status_board_order" value="'.$status_order.'"></p>';

@@ -175,10 +175,13 @@ var DataSource = (function() {
   };
 
   function getVersions() {
-    var ret = [""];
+    var ret = [{version:""}];
     var versions = document.getElementsByClassName("version");
     for (var i = 0; i != versions.length; ++i) {
-      ret.push(versions[i].getAttribute("value"));
+      ret.push({
+        version: versions[i].getAttribute("value"),
+        timestamp: versions[i].getAttribute("timestamp")
+      });
     }
     return ret;
   };
