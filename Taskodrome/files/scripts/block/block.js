@@ -58,9 +58,9 @@ function Block(name, /** @type {ColumnHandler} */columnHandler, /** @type {Page}
   };
 
   this.setTop = function(top) {
+    var width = columnHandler.getColumnWidth();
     if (this.toBeDrawn()) {
       m_blockGr.setPos(new Position(0, top + V_OFFSET));
-      var width = columnHandler.getColumnWidth();
       this.m_bounds = { top : top, bottom : m_blockGr.m_bounds.bottom, left : this.m_bounds.left, right : this.m_bounds.left + width * columnHandler.getColumnNumber() };
       for (var i = 0; i != columnHandler.getColumnNumber(); ++i) {
         var pos = new Position(this.m_bounds.left + width * i, m_blockGr.m_bounds.bottom);
