@@ -75,7 +75,7 @@ var DevPage = (function() {
 
       var oldVersion = card.getVersion();
       if (src.m_block != dst.m_block) {
-        card.setVersion(m_versions[dst.m_block]);
+        card.setVersion(m_versions[dst.m_block].version);
       }
 
       var oldStatus = card.getStatus();

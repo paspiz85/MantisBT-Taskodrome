@@ -95,7 +95,7 @@ var StatusPage = (function() {
 
       var oldVersion = card.getVersion();
       if (src.m_block != dst.m_block) {
-        card.setVersion(m_versions[dst.m_block]);
+        card.setVersion(m_versions[dst.m_block].version);
       }
 
       if (src.m_column != dst.m_column) {
