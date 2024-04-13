@@ -1,10 +1,7 @@
 function pageOnLoad() {
-  openPage();
-
   DataSource.Inst();
-
+  openPage();
   initVersionVisibility();
-
   DevPage.Inst();
   StatusPage.Inst();
   RelPage.Inst();
@@ -18,7 +15,7 @@ function openPage() {
     var prevGrid = window.location.href.substr(markIndex + 1, 2);
     openBoard(prevGrid);
   } else {
-    openBoard("dg");
+    openBoard(DataSource.Inst().StatusBoardFirst()?"sg":"dg");
   }
 };
 

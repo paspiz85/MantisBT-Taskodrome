@@ -48,6 +48,7 @@ class TaskodromePlugin extends MantisPlugin
       } 
 
     return array(
+      "status_board_first" => false,
       "status_board_order_default" => $status_list,
       "status_board_order" => $status_list,
       "cooldown_period_days" => 14,
