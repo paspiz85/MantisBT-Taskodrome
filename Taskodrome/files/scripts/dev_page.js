@@ -25,11 +25,11 @@ var DevPage = (function() {
       return m_columnHandler.getColumnIndex(card.getOwner());
     };
 
-    var versions = DataSource.Inst().Versions();
-    function versionSorter(a, b) {
-      if(a > b) return 1; else return -1;
-    };
-    versions.sort(versionSorter);
+    var versions = DataSource.Inst().Versions().sort(function (a, b) {
+      if(a.timestamp > b.timestamp) return 1; else return -1;
+    }).map(function (e) {
+      return e.version;
+    });
 
     m_cardTransferNotifier = new CardTransferNotifier();
     m_cardTransferHandler = new CardTransferHandler(m_cardTransferNotifier);
@@ -57,7 +57,9 @@ var DevPage = (function() {
             m_cardTransferHandler, columnHandler, page));
         }
       };
-      DataSource.Inst().IssuesRaw().forEach(addIssue);
+      DataSource.Inst().IssuesRaw().sort(function (a, b) {
+        if(a.priorityCode < b.priorityCode) return 1; else return -1;
+      }).forEach(addIssue);
     };
     versions.forEach(addVersion);
   };

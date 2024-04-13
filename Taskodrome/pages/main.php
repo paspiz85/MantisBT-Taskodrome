@@ -185,11 +185,12 @@
     $t_versions_cnt = count( $t_versions );
     for( $k=0; $k < $t_versions_cnt; $k++ ) {
       $ver_id = $t_versions[$k]['id'];
-      print '<p class="version" value="'.version_get_field($ver_id, "version").'"></p>';
+      print '<p class="version" value="'.version_get_field($ver_id, "version").'" timestamp="'.version_get_field($ver_id, "date_order").'"></p>';
     }
 
     print '<p class="status_board_order" value="'.$status_order.'"></p>';
     print '<p id="autoassign" value="'. config_get( "auto_set_status_to_assigned" ) .'"></p>';
+    print '<p id="status_board_first" value="'. plugin_config_get("status_board_first", null, false, null, $current_project_id) .'"></p>';
     print '<p id="cooldown_period_days" value="'. plugin_config_get("cooldown_period_days", null, false, null, $current_project_id) .'"></p>';
     print '<p id="cooldown_period_hours" value="'. plugin_config_get("cooldown_period_hours", null, false, null, $current_project_id) .'"></p>';
     print '<p id="lang_description" value="'. lang_get("description") .'"></p>';
