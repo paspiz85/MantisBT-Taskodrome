@@ -34,6 +34,31 @@ print_manage_menu( 'manage_plugin_page.php' );
             <div class="table-responsive">
               <table class="table table-bordered table-condensed table-striped">
                 <tr>
+                  <?php $t_field = 'status_board_first'; ?>
+                  <th class="category width-40">
+                    <span>
+                      <?php echo plugin_lang_get( $t_field . '_label' )?>
+                    </span>
+                    </br>
+                    <span class="small">
+                      <?php printf( plugin_lang_get( 'default_value' ),
+                      string_attribute( "false" ) );
+                    ?>
+                    </span>
+                  </th>
+                  <td class="center" width="20%">
+                    <span class="input">
+                      <input name="<?php echo $t_field; ?>" type="checkbox" <?php
+                        $t_config = plugin_config_get( $t_field, null, false, null, helper_get_current_project());
+                        if ($t_config) {
+                          echo 'checked="checked"';
+                        }
+                      ?>></input>
+                    </span>
+                  </td>
+                </tr>
+
+                <tr>
                   <?php $t_field = 'status_board_order'; ?>
                   <th class="category width-40">
                     <span>

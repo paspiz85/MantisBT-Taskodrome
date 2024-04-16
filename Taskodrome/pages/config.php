@@ -6,6 +6,12 @@ auth_reauthenticate( );
 access_ensure_global_level( config_get( 'manage_plugin_threshold' ) );
 require_once( config_get( 'plugin_path' ) . 'Taskodrome/core/config_helper.php' );
 
+$f_status_first = gpc_get_bool( 'status_board_first' );
+
+if( plugin_config_get( 'status_board_first', null, false, null, helper_get_current_project() ) != $f_status_first ) {
+ plugin_config_set( 'status_board_first', $f_status_first, NO_USER, helper_get_current_project() );
+}
+
 $f_status_order = gpc_get_string( 'status_board_order' );
 
 if( plugin_config_get( 'status_board_order', null, false, null, helper_get_current_project() ) != $f_status_order ) {
