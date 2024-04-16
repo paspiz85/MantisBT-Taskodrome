@@ -20,7 +20,17 @@ function ColumnHandler(/** @type {Array.<String>} */headers, canvasWidth) {
 
   this.getColumnWidth = function() {
     if (m_columnWidth == 0) {
-      var MIN_WIDTH = Math.floor(canvasWidth / 7);
+      var MIN_COL;
+      if (canvasWidth < 1320) {
+        MIN_COL = 5;
+      } else if (canvasWidth < 1540) {
+        MIN_COL = 6;
+      } else if (canvasWidth < 1760) {
+        MIN_COL = 7;
+      } else {
+        MIN_COL = 8;
+      }
+      var MIN_WIDTH = Math.floor(canvasWidth / MIN_COL);
       if (this.getColumnNumber() != 0) {
         m_columnWidth = Math.max(Math.floor(canvasWidth / this.getColumnNumber()), MIN_WIDTH);
       } else {
