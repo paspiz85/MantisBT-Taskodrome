@@ -87,6 +87,7 @@ var DevPage = (function() {
         card.setStatus(50);
       }
 
+      var oldOwner = card.getOwner();
       if (src.m_column != dst.m_column) {
         card.setOwner(m_columnHandler.getColumnName(dst.m_column));
       }
@@ -96,7 +97,17 @@ var DevPage = (function() {
 
       var data = new IssueData();
       data.Init(card.getId(), DataSource.Inst().UserId(card.getOwner()), card.getVersion());
-      m_updater.send(data);
+      m_updater.send(data, function() {
+        var newVersion = card.getVersion();
+        card.setVersion(oldVersion);
+        var newStatus = card.getStatus();
+        card.setStatus(oldStatus);
+        var newOwner = card.getOwner();
+        card.setOwner(oldOwner);
+        DevPage.Inst().UpdateCard(newVersion, newOwner, card);
+        StatusPage.Inst().UpdateCard(newVersion, newStatus, card);
+        RelPage.Inst().UpdateCard(card);
+      });
     };
   };
 
