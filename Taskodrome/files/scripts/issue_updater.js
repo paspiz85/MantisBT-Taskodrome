@@ -122,6 +122,10 @@ function IssueUpdater() {
                      + "&last_updated=" + last_updated;
     if (issue_data.m_status) {
       parameters += "&status=" + issue_data.m_status;
+      if (issue_data.m_status == 80) {
+        parameters += "&resolution=" + 20;
+        parameters += "&fixed_in_version=" + issue_data.m_version;
+      }
     }
     request.send(parameters);
   };
