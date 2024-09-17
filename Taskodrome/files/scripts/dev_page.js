@@ -25,11 +25,11 @@ var DevPage = (function() {
       return m_columnHandler.getColumnIndex(card.getOwner());
     };
 
-    var versions = DataSource.Inst().Versions();
-    function versionSorter(a, b) {
-      if(a > b) return 1; else return -1;
-    };
-    versions.sort(versionSorter);
+    var versions = DataSource.Inst().Versions().sort(function (a, b) {
+      if(a.timestamp > b.timestamp) return 1; else return -1;
+    }).map(function (e) {
+      return e.version;
+    });
 
     m_cardTransferNotifier = new CardTransferNotifier();
     m_cardTransferHandler = new CardTransferHandler(m_cardTransferNotifier);
@@ -57,7 +57,9 @@ var DevPage = (function() {
             m_cardTransferHandler, columnHandler, page));
         }
       };
-      DataSource.Inst().IssuesRaw().forEach(addIssue);
+      DataSource.Inst().IssuesRaw().sort(function (a, b) {
+        if(a.priorityCode < b.priorityCode) return 1; else return -1;
+      }).forEach(addIssue);
     };
     versions.forEach(addVersion);
   };
@@ -85,6 +87,7 @@ var DevPage = (function() {
         card.setStatus(50);
       }
 
+      var oldOwner = card.getOwner();
       if (src.m_column != dst.m_column) {
         card.setOwner(m_columnHandler.getColumnName(dst.m_column));
       }
@@ -94,7 +97,17 @@ var DevPage = (function() {
 
       var data = new IssueData();
       data.Init(card.getId(), DataSource.Inst().UserId(card.getOwner()), card.getVersion());
-      m_updater.send(data);
+      m_updater.send(data, function() {
+        var newVersion = card.getVersion();
+        card.setVersion(oldVersion);
+        var newStatus = card.getStatus();
+        card.setStatus(oldStatus);
+        var newOwner = card.getOwner();
+        card.setOwner(oldOwner);
+        DevPage.Inst().UpdateCard(newVersion, newOwner, card);
+        StatusPage.Inst().UpdateCard(newVersion, newStatus, card);
+        RelPage.Inst().UpdateCard(card);
+      });
     };
   };
 

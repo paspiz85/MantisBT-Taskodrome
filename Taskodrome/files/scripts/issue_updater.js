@@ -19,11 +19,11 @@ function IssueData() {
 function IssueUpdater() {
   var HTTP_REQUEST_TIMEOUT = 4000;
 
-  this.send = function(/** @type {IssueData} */issue_data) {
-    requestViewPage(issue_data);
+  this.send = function(/** @type {IssueData} */issue_data, rollback_fn) {
+    requestViewPage(issue_data, rollback_fn);
   };
 
-  function requestViewPage(/** @type {IssueData} */issue_data) {
+  function requestViewPage(/** @type {IssueData} */issue_data, rollback_fn) {
     var request = new XMLHttpRequest();
     var address = getPathToMantisFile(window, "view.php");
     address = address + "?id=" + issue_data.m_issue_id;
@@ -33,7 +33,7 @@ function IssueUpdater() {
     function onReadyStateChange() {
       if (request.readyState == 4 && request.status == 200) {
         console.log("requestViewPage OK");
-        requesBugUpdatePage(request, issue_data);
+        requesBugUpdatePage(request, issue_data, rollback_fn);
       } else if (request.readyState == 0 || request.status == 404) {
         request.onreadystatechange = null;
         request.abort();
@@ -50,7 +50,7 @@ function IssueUpdater() {
     request.send(null);
   };
 
-  function requesBugUpdatePage(requestPrev, /** @type {IssueData} */issue_data) {
+  function requesBugUpdatePage(requestPrev, /** @type {IssueData} */issue_data, rollback_fn) {
     var page_text = requestPrev.responseText;
     var security_token = getValueByName(page_text, "bug_update_page_token");
 
@@ -63,7 +63,7 @@ function IssueUpdater() {
     function onReadyStateChange() {
       if (request.readyState == 4 && request.status == 200) {
         console.log("requesBugUpdatePage OK");
-        requestBugUpdate(request, issue_data);
+        requestBugUpdate(request, issue_data, rollback_fn);
       } else if (request.readyState == 0 || request.status == 404) {
         request.onreadystatechange = null;
         request.abort();
@@ -82,7 +82,7 @@ function IssueUpdater() {
     request.send(parameters);
   };
 
-  function requestBugUpdate(requestPrev, /** @type {IssueData} */issue_data) {
+  function requestBugUpdate(requestPrev, /** @type {IssueData} */issue_data, rollback_fn) {
     var page_text = requestPrev.responseText;
     var security_token = getValueByName(page_text, "bug_update_token");
     var last_updated = getValueByName(page_text, "last_updated");
@@ -95,6 +95,12 @@ function IssueUpdater() {
 
     function onReadyStateChange() {
       if (request.readyState == 4 && request.status == 200) {
+        if (request.responseURL == address) {
+          console.log("requestBugUpdate failed");
+          if (rollback_fn) {
+            rollback_fn();
+          }
+        }
         console.log("requestBugUpdate OK");
       } else if (request.readyState == 0 || request.status == 404) {
         request.onreadystatechange = null;
@@ -116,6 +122,10 @@ function IssueUpdater() {
                      + "&last_updated=" + last_updated;
     if (issue_data.m_status) {
       parameters += "&status=" + issue_data.m_status;
+      if (issue_data.m_status == 80) {
+        parameters += "&resolution=" + 20;
+        parameters += "&fixed_in_version=" + issue_data.m_version;
+      }
     }
     request.send(parameters);
   };

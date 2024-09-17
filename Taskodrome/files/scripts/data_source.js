@@ -2,6 +2,7 @@ var DataSource = (function() {
   var m_inst = null;
 
   var m_issues_raw = null;
+  var m_status_board_first = false;
   var m_cooldown_period = 0;
   var m_allowed_statuses_map = null;
   var m_statuses = null;
@@ -47,6 +48,15 @@ var DataSource = (function() {
 
   var IssuesRaw = function() {
     return m_issues_raw;
+  };
+
+  function getStatusBoardFirst() {
+    var statusBoardFirst = document.getElementById("status_board_first").getAttribute("value") == "1";
+    return statusBoardFirst;
+  };
+
+  var StatusBoardFirst = function() {
+    return m_status_board_first;
   };
 
   function getCooldownPeriod() {
@@ -175,10 +185,13 @@ var DataSource = (function() {
   };
 
   function getVersions() {
-    var ret = [""];
+    var ret = [{version:""}];
     var versions = document.getElementsByClassName("version");
     for (var i = 0; i != versions.length; ++i) {
-      ret.push(versions[i].getAttribute("value"));
+      ret.push({
+        version: versions[i].getAttribute("value"),
+        timestamp: versions[i].getAttribute("timestamp")
+      });
     }
     return ret;
   };
@@ -299,6 +312,7 @@ var DataSource = (function() {
 
   var CreateInst = function() {
     m_issues_raw = getIssuesRaw();
+    m_status_board_first = getStatusBoardFirst();
     m_cooldown_period = getCooldownPeriod();
     m_allowed_statuses_map = getStatusesAllowanceMap();
     m_status_color_map = getStatusColors();
@@ -314,6 +328,7 @@ var DataSource = (function() {
     m_dependencies = getDependencies();
     return {
       IssuesRaw: IssuesRaw,
+      StatusBoardFirst: StatusBoardFirst,
       CooldownPeriod: CooldownPeriod,
       IsTransferAllowed: IsTransferAllowed,
       GetColorOfStatus: GetColorOfStatus,
